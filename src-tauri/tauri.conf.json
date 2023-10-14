@@ -12,7 +12,13 @@
   },
   "tauri": {
     "allowlist": {
-      "all": false
+      "http": {
+        "scope": ["https://www.guilded.gg/api/*"],
+        "request": true
+      },
+      "dialog": {
+        "all": true
+      }
     },
     "bundle": {
       "active": true,
