@@ -1,9 +1,8 @@
 <script lang="ts">
-	import { PUBLIC_DEV_EMAIL, PUBLIC_DEV_PASS } from '$env/static/public';
 	import { login } from '$lib/auth';
 
-  let email = PUBLIC_DEV_EMAIL || "";
-  let password = PUBLIC_DEV_PASS || "";
+  let email = "";
+  let password = "";
 
   async function handleSubmit(event: SubmitEvent) {
     event.preventDefault();
