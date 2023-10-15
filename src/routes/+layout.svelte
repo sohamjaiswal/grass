@@ -97,7 +97,7 @@
 		</AppBar>
 	</svelte:fragment>
 	<!-- Page Route Content -->
-	<div class="flex flex-col gap-4 items-center mt-20">
+	<div class="flex flex-col gap-4 items-center mt-5">
 		<slot />
 	</div>
 </AppShell>
