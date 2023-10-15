@@ -4,7 +4,7 @@
 use base64::{engine::general_purpose, Engine as _};
 use dotenv::dotenv;
 use reqwest::blocking::Client;
-use tauri::{Window, PhysicalPosition, SystemTray};
+use tauri::{Window, SystemTray};
 use tauri_plugin_oauth::{start_with_config, OauthConfig};
 
 #[tauri::command]
@@ -108,29 +108,6 @@ fn get_client_id() -> String {
 }
 
 #[tauri::command]
-async fn setup(window: Window) -> Result<(), String> {
-    // let logical_size = LogicalSize::new(600.0, 400.0);
-    // window.set_size(Size::new(logical_size)).unwrap();
-    let available_monitors = window.available_monitors().unwrap();
-
-    let mut position_x = &available_monitors[0].size().width - window.outer_size().unwrap().width;
-    let mut position_y = &available_monitors[0].size().height
-        - window.outer_size().unwrap().height
-        - (48 as f64 * &available_monitors[0].scale_factor()) as u32;
-
-    if available_monitors.len() > 1 {
-        position_x = available_monitors[1].position().x as u32;
-        position_y = &available_monitors[1].size().height
-            - window.outer_size().unwrap().height
-            - (48 as f64 * &available_monitors[1].scale_factor()) as u32;
-    }
-    let position = PhysicalPosition::new(position_x, position_y);
-
-    window.set_position(position).unwrap();
-    Ok(())
-}
-
-#[tauri::command]
 // accepts a string from the frontend and returns an array buffer after downloading the image
 fn get_img_data(src: String) -> Result<Vec<u8>, String> {
     let response = reqwest::blocking::get(src);
@@ -164,7 +141,6 @@ fn main() {
   .system_tray(tray)
     .invoke_handler(tauri::generate_handler![
       start_server,
-      setup,
       get_client_id,
       get_new_token,
       get_img_data
