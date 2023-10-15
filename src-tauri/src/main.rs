@@ -130,6 +130,34 @@ async fn setup(window: Window) -> Result<(), String> {
     Ok(())
 }
 
+#[tauri::command]
+// accepts a string from the frontend and returns an array buffer after downloading the image
+fn get_img_data(src: String) -> Result<Vec<u8>, String> {
+    let response = reqwest::blocking::get(src);
+    match response {
+        Ok(response) => {
+            if response.status().is_success() {
+                let mut buffer: Vec<u8> = Vec::new();
+                let bytes = response.bytes();
+
+                match bytes {
+                    Ok(bytes) => {
+                        buffer.extend_from_slice(&bytes);
+                        Ok(buffer)
+                    }
+                    Err(err) => {
+                        Err(format!("Error reading response bytes: {}", err))
+                    }
+                }
+            } else {
+                Err("Error: Image not found".to_string())
+            }
+        }
+        Err(err) => {
+            Err(format!("Error making HTTP request: {}", err))
+        }
+    }
+}
 fn main() {
   let tray = SystemTray::new();
   tauri::Builder::default()
@@ -138,7 +166,8 @@ fn main() {
       start_server,
       setup,
       get_client_id,
-      get_new_token
+      get_new_token,
+      get_img_data
     ])
     .run(tauri::generate_context!())
     .expect("error while running tauri application");

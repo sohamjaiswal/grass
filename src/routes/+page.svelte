@@ -1,4 +1,7 @@
 <script lang="ts">
+	import { restoreStatus, updateStatus, uploadImageFromLink } from "$lib/auth";
+	import { getStatus } from "$lib/get-status";
+	import type { UserStatus } from "$lib/types/GuildedMe";
 	import type { songsJSON } from "$lib/types/Spotify";
 	import { SlideToggle } from "@skeletonlabs/skeleton";
 
@@ -10,13 +13,15 @@
 
 	let uploadStatus = false
 
+	let prevPollSong: songsJSON | null = null
+
 	const testSong: songsJSON = {
 	name: "夜に駆ける",
 	album: {
 		name: "THE BOOK",
 		images: [
 		{
-			url: "https://th.bing.com/th/id/OIP.AnaXOLbg0j_gg9X586l5kAAAAA?pid=ImgDet&rs=1",
+			url: "https://img.guildedcdn.com/ContentMediaGenericFiles/8994c392e8e4caa000c1e94f603739f3-Full.webp",
 		},
 		],
 	},
@@ -26,25 +31,57 @@
 	if (offline) {
 		nowPlaying = testSong
 	}
-</script>
 
-<!-- YOU CAN DELETE EVERYTHING IN THIS PAGE -->
+	let restored = false;
+	const periodicCheck = async() => {
+		if (nowPlaying && uploadStatus) {
+			if (prevPollSong) {
+				// json stringify it to compare without having memory reference as a param, as they are diff objects, it'll always be false otherwise
+				if (JSON.stringify(prevPollSong) === JSON.stringify(nowPlaying)) {
+					console.log("same song, did nothing")
+					return null
+				}
+			}
+			// upload image to guilded cdn
+			let image = (await uploadImageFromLink(nowPlaying.album.images[0].url))?.url
+			if (!image) {
+				image = "https://img.guildedcdn.com/ContentMedia/a66d62f7476c5f7b63b6e16e3d77f23e-Full.webp?w=1200&h=1200"
+			}
+			const newStatus = getStatus("https://www.guilded.gg/i/2OOJz4Z2", `Listening to ${nowPlaying?.name} by ${nowPlaying?.artists[0].name}`, image)
+			prevPollSong = nowPlaying
+			updateStatus(newStatus)
+			console.log("updated")
+			restored = false
+			return null
+		} 
+		if ((prevPollSong || prevPollSong === null) && !restored) {
+			restoreStatus()
+			console.log("restored")
+			restored = true
+		}
+		console.log("not playing, restored, did nothing")
+		return null
+	}
+
+	setInterval(periodicCheck, 10000)
+</script>
 
 <div class="container h-full mx-auto flex justify-center items-center">
 	<div class="space-y-10 text-center flex flex-col items-center">
 		<h2 class="h2">Welcome to GRASS.</h2>
 		<section class="img-bg" />
 		{#key nowPlaying}
-			<!-- display song data -->
 			{#if nowPlaying}
 				<figure>
-					{#if nowPlaying.album.images.length > 0}
-						<img class="rounded-xl" src={nowPlaying.album.images[0].url} alt="Album Art" />
-					{:else}
-						<h1>
-							🎶
-						</h1>
-					{/if}
+					<div class="flex flex-col items-center">
+						{#if nowPlaying.album.images.length > 0}
+							<img class="rounded-xl aspect-square w-1/2" src={nowPlaying.album.images[0].url} alt="Album Art" />
+						{:else}
+							<h1>
+								🎶
+							</h1>
+						{/if}
+					</div>
 					<figcaption class="mt-4">
 						<h3 class="h3">{nowPlaying.name}</h3>
 						<p class="text-secondary-400">
@@ -57,7 +94,6 @@
 					<small>{uploadStatus ? "Uploading" : "Not uploading"} status to Guilded.</small>
 				</div>
 			{:else}
-				<!-- message for nothing is playing -->
 				<h3>Nothing is playing.</h3>
 				{/if}
 		{/key}

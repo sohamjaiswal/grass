@@ -276,7 +276,7 @@ export interface TeamSettings {
 export interface UserStatus {
   content:          Content;
   customReactionId: number;
-  customReaction:   CustomReaction;
+  customReaction?:   CustomReaction;
 }
 
 export interface Content {
@@ -339,4 +339,8 @@ export interface CustomReaction {
   webp:   string;
   apng:   null;
   teamId: number;
+}
+
+export interface GuildedMediaUpload {
+  url: string
 }

@@ -1,7 +1,8 @@
 import { Body, fetch } from '@tauri-apps/api/http'
-import type { GuildedMe, UserStatus } from './types/GuildedMe'
+import type { GuildedMe, GuildedMediaUpload, UserStatus } from './types/GuildedMe'
 import { localStorageStore } from '@skeletonlabs/skeleton';
 import type { Writable } from 'svelte/store';
+import { invoke } from '@tauri-apps/api';
 
 export const me: Writable<GuildedMe | null> = localStorageStore<GuildedMe | null>("me", null)
 export const oldStatus: Writable<UserStatus | null> = localStorageStore<UserStatus | null>("oldStatus", null)
@@ -15,7 +16,6 @@ export const login = async (email: string, password: string) => {
       }
     });
     if (res.ok) {
-      console.log(res.rawHeaders)
       const cookies = res.rawHeaders['set-cookie']
       if (cookies) {
         localStorage.setItem("guildedCookies", JSON.stringify(cookies))
@@ -33,16 +33,13 @@ export const getSelf = async () => {
   const cookies = localStorage.getItem("guildedCookies")
   // convert cookies to requestable format
   if (!cookies) {
-    console.log("no cookies")
     return null
   }
   const cookiesArr = (await JSON.parse(cookies as string)) as string[]
-  console.log("cookieArr", cookiesArr)
   const cookiesArrFirstEls = cookiesArr.map((cookie) => {
     return cookie.split(";")[0]
   })
   const cookie = cookiesArrFirstEls.join(";")
-  console.log("cookiesStr", cookie)
   const res = await fetch("https://www.guilded.gg/api/me", {
     method: "GET",
     headers: {
@@ -51,33 +48,27 @@ export const getSelf = async () => {
     }
   })
   if (res.ok) {
-    console.log(res.data)
     me.set(res.data as GuildedMe)
     return localStorage.getItem("me")
   }
   me.set(null)
   return localStorage.getItem("me")
 }
-
 export const restoreStatus = async () => {
   const cookies = localStorage.getItem("guildedCookies")
   const oldStatus = localStorage.getItem("oldStatus")
   // convert cookies to requestable format
   if (!cookies) {
-    console.log("no cookies")
     return null
   }
   if (!oldStatus) {
-    console.log("no prior status backup!")
     return null
   }
   const cookiesArr = (await JSON.parse(cookies as string)) as string[]
-  console.log("cookieArr", cookiesArr)
   const cookiesArrFirstEls = cookiesArr.map((cookie) => {
     return cookie.split(";")[0]
   })
   const cookie = cookiesArrFirstEls.join(";")
-  console.log("cookiesStr", cookie)
   const res = await fetch("https://www.guilded.gg/api/users/me/status", {
     method: "POST",
     headers: {
@@ -86,7 +77,6 @@ export const restoreStatus = async () => {
     },
     body: Body.json(JSON.parse(oldStatus))
   })
-  console.log(res)
   if (res.ok) {
     return await getSelf()
   }
@@ -109,16 +99,13 @@ export const logout = async () => {
   const cookies = localStorage.getItem("guildedCookies")
   // convert cookies to requestable format
   if (!cookies) {
-    console.log("no cookies")
     return null
   }
   const cookiesArr = (await JSON.parse(cookies as string)) as string[]
-  console.log("cookieArr", cookiesArr)
   const cookiesArrFirstEls = cookiesArr.map((cookie) => {
     return cookie.split(";")[0]
   })
   const cookie = cookiesArrFirstEls.join(";")
-  console.log("cookiesStr", cookie)
   const res = await fetch("https://www.guilded.gg/api/logout", {
     method: "POST",
     headers: {
@@ -133,3 +120,64 @@ export const logout = async () => {
   }
   return false
 } 
+export const updateStatus = async (newStatus: UserStatus) => {
+  const cookies = localStorage.getItem("guildedCookies")
+  if (!cookies) {
+    return null
+  }
+  const cookiesArr = (await JSON.parse(cookies as string)) as string[]
+  const cookiesArrFirstEls = cookiesArr.map((cookie) => {
+    return cookie.split(";")[0]
+  })
+  const cookie = cookiesArrFirstEls.join(";")
+  const res = await fetch("https://www.guilded.gg/api/users/me/status", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      cookie
+    },
+    body: Body.json(newStatus)
+  })
+  if (res.ok) {
+    return await getSelf()
+  }
+  return null
+}
+export const uploadImageFromLink: (link:string) => Promise<GuildedMediaUpload | null> = async (link: string) => {
+  console.log("uploading image from link")
+  const cookies = localStorage.getItem("guildedCookies")
+  if (!cookies) {
+    return null
+  }
+  const cookiesArr = (await JSON.parse(cookies as string)) as string[]
+  const cookiesArrFirstEls = cookiesArr.map((cookie) => {
+    return cookie.split(";")[0]
+  })
+  const cookie = cookiesArrFirstEls.join(";")
+  const imageData = await invoke('get_img_data', {src: link}) as Uint8Array
+  if (!imageData) {
+    console.log("no image data")
+    return null
+  }
+  console.log(imageData)
+  const res = await fetch("https://media.guilded.gg/media/upload?dynamicMediaTypeId=ContentMediaGenericFiles", {
+    method: "POST",
+    headers: {
+      "Content-Type": 'multipart/form-data',
+      cookie
+    },
+    body: Body.form({
+      file: {
+        file: imageData as Uint8Array,
+        mime: "image/jpg",
+        fileName: "image.jpeg",
+      }
+    })
+  })
+  if (res.ok) {
+    console.log("image uploaded")
+    return res.data as GuildedMediaUpload
+  }
+  console.log("image upload failed")
+  return null
+}

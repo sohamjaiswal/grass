@@ -13,7 +13,7 @@
   "tauri": {
     "allowlist": {
       "http": {
-        "scope": ["https://www.guilded.gg/api/*"],
+        "scope": ["https://www.guilded.gg/api/*", "https://media.guilded.gg/media/*"],
         "request": true
       },
       "dialog": {
