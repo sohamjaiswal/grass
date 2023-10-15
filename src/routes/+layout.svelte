@@ -8,7 +8,6 @@
 	import LoginWithGuilded from '$lib/components/loginWithGuilded.svelte';
 	storePopup.set({ computePosition, autoUpdate, flip, shift, offset, arrow });
 	import { getSelf, logout, me } from '$lib/auth';
-	import type { GuildedMe } from '$lib/types/GuildedMe';
 	initializeStores()
 	
 	const drawerStore = getDrawerStore();
