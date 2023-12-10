@@ -1,71 +1,54 @@
 import type { UserStatus } from "./types/GuildedMe"
 
-export const getStatus: (link: string, label: string, imageURL: string) => UserStatus = (link: string, label: string, imageURL: string) => {
+export const getStatus: (label: string, imageURL: string) => UserStatus = (label: string, imageURL: string) => {
     const template = {
-        content: {
-          document: {
-            data: {},
-            nodes: [
-              {
-                data: {},
-                nodes: [
-                  {
-                    object: "inline",
-                    type: "link",
-                    data: {
-                      href: link
-                    },
-                    nodes: [
-                      {
-                        object: "text",
-                        leaves: [
-                          {
-                            object: "leaf",
-                            text: label,
-                            marks: []
-                          }
-                        ]
-                      },
-                      {
-                        object: "block",
-                        type: "image",
-                        data: {
-                          name: "ganyu.gif",
-                          fileSizeBytes: 3222143,
-                          src: imageURL
-                        },
-                        nodes: [
-                          {
-                            object: "text",
-                            leaves: [
-                              {
-                                object: "leaf",
-                                text: "",
-                                marks: []
-                              }
-                            ]
-                          }
-                        ]
-                      }
-                    ]
+      content: {
+        document: {
+          data: {},
+          nodes: [
+            {
+              data: {},
+              nodes: [
+                {
+                  leaves: [
+                    {
+                      marks: [],
+                      object: "leaf",
+                      text: label
+                    }
+                  ],
+                  object: "text"
+                },
+                {
+                  object: "block",
+                  type: "image",
+                  data: {
+                    name: "art.img",
+                    fileSizeBytes: 1000,
+                    src: imageURL
                   },
-                  {
-                    object: "text",
-                    leaves: [
-                      {
-                        object: "leaf",
-                        text: "",
-                        marks: []
-                      }
-                    ]
-                  }
-                ],
-                object: "block",
-                type: "paragraph"
-              }
-            ]
-          }
+                  nodes: [
+                    {
+                      object: "text",
+                      leaves: [
+                        {
+                          object: "leaf",
+                          text: "",
+                          marks: []
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
+              object: "block",
+              type: "paragraph"
+            }
+          ],
+          object: "document"
         },
+        object: "value"
+      },
         customReactionId: 1260313,
         expireInMs: 0
       }

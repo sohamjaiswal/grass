@@ -79,6 +79,8 @@ export const restoreStatus = async () => {
   })
   if (res.ok) {
     return await getSelf()
+  } else {
+    console.log(res)
   }
   return null
 }

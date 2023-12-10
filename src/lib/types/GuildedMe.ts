@@ -274,72 +274,64 @@ export interface TeamSettings {
 }
 
 export interface UserStatus {
-  content:          Content;
-  customReactionId: number;
-  customReaction?:   CustomReaction;
+  content: Content
+  customReactionId: number
+  expireInMs: number
 }
 
 export interface Content {
-  document: Document;
+  document: Document
+  object: string
 }
 
 export interface Document {
-  data:  RolesByID;
-  nodes: DocumentNode[];
+  data: Data
+  nodes: Node[]
+  object: string
 }
 
-export interface DocumentNode {
-  data:   RolesByID;
-  type:   string;
-  nodes:  PurpleNode[];
-  object: string;
+export interface Data {}
+
+export interface Node {
+  data: Data2
+  nodes: Node2[]
+  object: string
+  type: string
 }
 
-export interface PurpleNode {
-  data?:   PurpleData;
-  type?:   string;
-  nodes?:  FluffyNode[];
-  object:  string;
-  leaves?: Leaf[];
+export interface Data2 {}
+
+export interface Node2 {
+  leaves?: Lefe[]
+  object: string
+  type?: string
+  data?: Data3
+  nodes?: Node3[]
 }
 
-export interface PurpleData {
-  href: string;
+export interface Lefe {
+  marks: any[]
+  object: string
+  text: string
 }
 
-export interface Leaf {
-  text:   string;
-  marks:  any[];
-  object: string;
+export interface Data3 {
+  name: string
+  fileSizeBytes: number
+  src: string
 }
 
-export interface FluffyNode {
-  leaves?: Leaf[];
-  object:  string;
-  data?:   FluffyData;
-  type?:   string;
-  nodes?:  TentacledNode[];
+export interface Node3 {
+  object: string
+  leaves: Lefe2[]
 }
 
-export interface FluffyData {
-  src:           string;
-  name:          string;
-  fileSizeBytes: number;
+export interface Lefe2 {
+  object: string
+  text: string
+  marks: any[]
 }
 
-export interface TentacledNode {
-  leaves: Leaf[];
-  object: string;
-}
-
-export interface CustomReaction {
-  id:     number;
-  name:   string;
-  png:    string;
-  webp:   string;
-  apng:   null;
-  teamId: number;
-}
 
 export interface GuildedMediaUpload {
   url: string

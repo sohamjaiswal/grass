@@ -99,9 +99,9 @@
 			// upload image to guilded cdn
 			let image = (await uploadImageFromLink(nowPlaying.album.images[0].url))?.url
 			if (!image) {
-				image = "https://img.guildedcdn.com/ContentMedia/a66d62f7476c5f7b63b6e16e3d77f23e-Full.webp?w=1200&h=1200"
+				image = "https://s3-us-west-2.amazonaws.com/www.guilded.gg/ContentMediaGenericFiles/a66d62f7476c5f7b63b6e16e3d77f23e-Full.webp?w=1200&h=1200"
 			}
-			const newStatus = getStatus("https://www.guilded.gg/i/2OOJz4Z2", `Listening to ${nowPlaying?.name} by ${nowPlaying?.artists[0].name}`, image)
+			const newStatus = getStatus(`Listening to ${nowPlaying?.name} by ${nowPlaying?.artists[0].name}`, image)
 			prevPollSong = nowPlaying
 			updateStatus(newStatus)
 			console.log("updated")
